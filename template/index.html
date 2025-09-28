@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake News Detection System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Header -->
+        <header class="bg-primary text-white py-4 mb-4">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Fake News Detection System</h1>
+                        <p class="mb-0 mt-2">Advanced AI-powered analysis to identify misinformation</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="badge bg-success fs-6">
+                            <i class="fas fa-check-circle me-1"></i>100% Test Accuracy
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- Input Section -->
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="card shadow-lg">
+                        <div class="card-header bg-light">
+                            <ul class="nav nav-tabs card-header-tabs" id="inputTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#text-input" type="button" role="tab">
+                                        <i class="fas fa-edit me-2"></i>Text Input
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="url-tab" data-bs-toggle="tab" data-bs-target="#url-input" type="button" role="tab">
+                                        <i class="fas fa-link me-2"></i>URL Analysis
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card-body">
+                            <div class="tab-content" id="inputTabsContent">
+                                <!-- Text Input Tab -->
+                                <div class="tab-pane fade show active" id="text-input" role="tabpanel">
+                                    <form id="textForm">
+                                        <div class="mb-3">
+                                            <label for="newsText" class="form-label">Enter news text to analyze:</label>
+                                            <textarea class="form-control" id="newsText" rows="6" 
+                                                placeholder="Paste the news article text here..."></textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="newsSource" class="form-label">Source (optional):</label>
+                                            <input type="text" class="form-control" id="newsSource" 
+                                                placeholder="e.g., CNN, BBC, Reuters...">
+                                        </div>
+                                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                            <button type="button" class="btn btn-outline-primary me-md-2" onclick="quickAnalyze()">
+                                                <i class="fas fa-bolt me-1"></i>Quick Analysis
+                                            </button>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-search me-1"></i>Detailed Analysis
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                                
+                                <!-- URL Input Tab -->
+                                <div class="tab-pane fade" id="url-input" role="tabpanel">
+                                    <form id="urlForm">
+                                        <div class="mb-3">
+                                            <label for="newsUrl" class="form-label">Enter news article URL:</label>
+                                            <input type="url" class="form-control" id="newsUrl" 
+                                                placeholder="https://example.com/news-article">
+                                            <div class="form-text">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                We'll automatically extract and analyze the article content
+                                            </div>
+                                        </div>
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-globe me-1"></i>Analyze URL
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loadingIndicator" class="text-center mt-4" style="display: none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Analyzing content...</p>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="mt-4" style="display: none;">
+                <div class="row justify-content-center">
+                    <div class="col-lg-10">
+                        <div class="card shadow-lg">
+                            <div class="card-header">
+                                <h3 class="mb-0"><i class="fas fa-chart-line me-2"></i>Analysis Results</h3>
+                            </div>
+                            <div class="card-body">
+                                <!-- Article Info -->
+                                <div id="articleInfo" class="mb-4"></div>
+                                
+                                <!-- Main Result -->
+                                <div id="mainResult" class="text-center mb-4"></div>
+                                
+                                <!-- Detailed Analysis -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card bg-light">
+                                            <div class="card-body">
+                                                <h5 class="card-title">
+                                                    <i class="fas fa-percentage me-2"></i>Confidence Scores
+                                                </h5>
+                                                <div id="confidenceScores"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card bg-light">
+                                            <div class="card-body">
+                                                <h5 class="card-title">
+                                                    <i class="fas fa-cogs me-2"></i>Feature Analysis
+                                                </h5>
+                                                <div id="featureAnalysis"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Interpretation -->
+                                <div class="mt-4">
+                                    <div class="card border-info">
+                                        <div class="card-header bg-info text-white">
+                                            <h5 class="mb-0">
+                                                <i class="fas fa-lightbulb me-2"></i>Interpretation
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div id="interpretation"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Processing Info -->
+                                <div class="mt-3 text-muted text-center">
+                                    <small id="processingInfo"></small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Examples Section -->
+            <div class="row justify-content-center mt-5">
+                <div class="col-lg-10">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="mb-0"><i class="fas fa-examples me-2"></i>Try These Examples</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-success">Legitimate News Examples:</h6>
+                                    <div class="example-item" onclick="loadExample(this)">
+                                        <small>"Scientists at MIT develop new solar panel technology with 40% efficiency improvement"</small>
+                                    </div>
+                                    <div class="example-item" onclick="loadExample(this)">
+                                        <small>"Federal Reserve announces interest rate decision following economic data review"</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-danger">Fake News Examples:</h6>
+                                    <div class="example-item" onclick="loadExample(this)">
+                                        <small>"Miracle diet pill makes you lose 50 pounds overnight without exercise"</small>
+                                    </div>
+                                    <div class="example-item" onclick="loadExample(this)">
+                                        <small>"Local psychic predicts end of world next Tuesday, sells survival kits"</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-dark text-white text-center py-4 mt-5">
+            <div class="container">
+                <p class="mb-0">
+                    <i class="fas fa-shield-alt me-2"></i>
+                    Fake News Detection System - Powered by Advanced Machine Learning
+                </p>
+                <small class="text-muted">
+                    Features: Sentiment Analysis • Source Credibility • Writing Style Analysis • Named Entity Recognition
+                </small>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
